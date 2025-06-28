@@ -1,0 +1,3968 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "SEU_WEBHOOK_PATH_AQUI",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -3740,
+        380
+      ],
+      "id": "30fd01a2-5f20-424c-badf-3dafea09d2d7",
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fed2f5ce-8944-4e36-8803-305609398f0d",
+              "leftValue": "={{ $('Webhook').first().json.body.data.key.fromMe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3520,
+        380
+      ],
+      "id": "50231933-1d9d-4bd4-827b-311467d2cccf",
+      "name": "deMim"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "256dd062-d5dd-4095-b6a6-376cfc90d2c6",
+              "leftValue": "={{ $('procura_cliente').first().json.wpp_cliente }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3460,
+        660
+      ],
+      "id": "9afda4e5-9c3a-4ef0-8b59-bda40ad47ff9",
+      "name": "verifica_existencia"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "banco_dados_clientes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "wpp_cliente",
+              "keyValue": "={{ $('Webhook').first().json.body.data.key.remoteJid }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3600,
+        660
+      ],
+      "id": "46978fa4-bdf7-49c4-a1ca-3e22c7d01391",
+      "name": "procura_cliente",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "tableId": "banco_dados_clientes",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome_cliente"
+            },
+            {
+              "fieldId": "wpp_cliente",
+              "fieldValue": "={{ $('Webhook').first().json.body.data.key.remoteJid }}"
+            },
+            {
+              "fieldId": "nome_wpp",
+              "fieldValue": "={{ $('Webhook').first().json.body.data.pushName }}"
+            },
+            {
+              "fieldId": "regiao_cliente",
+              "fieldValue": "={{ $('lista_estados').first().json.ddd }}, {{ $('lista_estados').first().json.cidade }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3460,
+        880
+      ],
+      "id": "03ae5b62-cc21-4846-98f1-a155d2766f75",
+      "name": "cria_cliente",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const remoteJid = $node[\"Webhook\"].json.body.data.key.remoteJid;\nconst numberOnly = remoteJid.replace('@s.whatsapp.net', '');\nconst ddd = numberOnly.substring(2, 4);\nconst dddMap = {\n  '62': 'Goiânia',\n  '85': 'Fortaleza',\n  '47': 'Joinville'\n};\nconst cidade = dddMap[ddd] || 'Desconhecido';\nreturn [\n  {\n    json: {\n      ddd,\n      cidade\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3600,
+        880
+      ],
+      "id": "af0277d5-4865-4644-a337-ef1e4a775e29",
+      "name": "lista_estados"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -3300,
+        880
+      ],
+      "id": "57ee7106-72a3-43da-8c37-56d9cfc6f97f",
+      "name": "Wait 1 Segundos"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3389f05c-d0fe-4efb-9675-779420ca6915",
+              "name": "urlDinamica",
+              "value": "={{ $('Webhook').first().json.body.server_url }}",
+              "type": "string"
+            },
+            {
+              "id": "ea59bd59-aaa0-40cd-81eb-a5b8f61f3048",
+              "name": "instanciaDinamica",
+              "value": "={{ $('Webhook').first().json.body.instance }}",
+              "type": "string"
+            },
+            {
+              "id": "b91fa62a-3a51-4ea1-8459-9b4533ef2a0d",
+              "name": "eventoLista",
+              "value": "={{ $('Webhook').first().json.body.server_url }}/message/sendList/",
+              "type": "string"
+            },
+            {
+              "id": "df42cd42-ae5a-4e49-a939-66b01b740e33",
+              "name": "eventoMensagem",
+              "value": "={{ $('Webhook').first().json.body.server_url }}/message/sendText/",
+              "type": "string"
+            },
+            {
+              "id": "ee67f4ca-63b0-4f62-be55-8551a7e953a0",
+              "name": "eventoMidia",
+              "value": "={{ $('Webhook').first().json.body.server_url }}/message/sendMedia/",
+              "type": "string"
+            },
+            {
+              "id": "c21a028d-f872-4b95-ba11-e0025315b4da",
+              "name": "apikeyParametro",
+              "value": "apikey",
+              "type": "string"
+            },
+            {
+              "id": "3b8e3d56-a8d9-4f89-a5fe-aa4cbde1533d",
+              "name": "apikeyGlobal",
+              "value": "SUA_API_KEY_AQUI",
+              "type": "string"
+            },
+            {
+              "id": "0320e52f-28d3-475d-ad99-aa63a1a391d5",
+              "name": "mensagemCliente",
+              "value": "={{ $('Webhook').first().json.body.data.message.conversation }}",
+              "type": "string"
+            },
+            {
+              "id": "ba16884b-4ac6-4c64-825d-97aca7f3cdd8",
+              "name": "tipoLista",
+              "value": "={{ $('Webhook').first().json.body.data.messageType }}",
+              "type": "string"
+            },
+            {
+              "id": "efc6b853-a053-4317-b925-613b09987892",
+              "name": "escolhaDaLista",
+              "value": "={{ $('Webhook').first().json.body.data.message.listResponseMessage.singleSelectReply.selectedRowId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3260,
+        520
+      ],
+      "id": "c861a825-ae56-4cf3-a9d3-c635c6cc6167",
+      "name": "dadosImportantes"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "05531870-634e-498f-ab81-4b8d0e9a757e",
+              "leftValue": "={{ $('dadosImportantes').first().json.mensagemCliente }}",
+              "rightValue": "#sair",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3040,
+        500
+      ],
+      "id": "12bfa6a8-b92a-4b57-8e44-b5d18631653a",
+      "name": "manutencao"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "banco_dados_clientes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "wpp_cliente",
+              "condition": "eq",
+              "keyValue": "={{ $('procura_cliente').first().json.wpp_cliente }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2620,
+        240
+      ],
+      "id": "221b605e-7bc5-48d1-ad77-217773e04141",
+      "name": "perguntasFrequentesDois",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    },
+                    "id": "76fac698-a501-4991-8bf6-e860d2bcdd91"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "inicio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "85be31a4-f84c-4e33-ad2c-f6caac6e7700",
+                    "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+                    "rightValue": "aguardarNome",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "agdrNome"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ea875511-0b99-44a8-84bd-6bfba2172431",
+                    "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+                    "rightValue": "confirmarLocalizacao",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "confLocalizacao"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9114b136-a9e5-4925-9dcd-fb2bf6759682",
+                    "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+                    "rightValue": "escolherMenu",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "esclhMenu"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "efdaf286-04c1-4f17-bbff-43de669c6f97",
+                    "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+                    "rightValue": "perguntasFrequentesDois",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "freqDois"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "anotherStage"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -3000,
+        880
+      ],
+      "id": "bc7557e2-1e3a-42d3-8f68-2d86509f6427",
+      "name": "verifica_etapa"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8452b580-264a-463c-b000-a0990e84f1ad",
+              "leftValue": "={{ $('dadosImportantes').first().json.tipoLista }}",
+              "rightValue": "listResponseMessage",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "94785d4e-a22a-4a70-af1e-0bf662c7c116",
+              "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+              "rightValue": "confOrca",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "8ec579c0-4c12-433b-903f-301ed2f342df",
+              "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+              "rightValue": "agrdEnder",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "f89a1ce0-2b47-40cb-853d-c9710fc02e12",
+              "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+              "rightValue": "finaAgend",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2660,
+        1040
+      ],
+      "id": "90542efc-1d0b-4b07-83ea-931c33804ea7",
+      "name": "tipoResposta1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoLista }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n  \"title\": \"Escolha uma das opções abaixo!\",\n  \"description\": \"Posso te encaminhar tudo certinho quando escolher uma das opções abaixo\",\n  \"buttonText\": \"Abrir Opções\",\n  \"footerText\": \"\",\n  \"sections\": [\n    {\n      \"title\": \"Menu Principal\",\n      \"rows\": [\n        {\n          \"title\": \"📋 Portfólio\",\n          \"rowId\": \"portfolio\",\n          \"description\": \"Conheça nossos trabalhos e produtos\"\n        },\n        {\n          \"title\": \"💰 Orçamento\",\n          \"rowId\": \"orcamento\",\n          \"description\": \"Solicite um orçamento personalizado\"\n        },\n        {\n          \"title\": \"❓ Perguntas Frequentes\",\n          \"rowId\": \"perguntas_frequentes\",\n          \"description\": \"Tire suas dúvidas mais comuns\"\n        },\n        {\n          \"title\": \"👥 Quem Somos\",\n          \"rowId\": \"quem_somos\",\n          \"description\": \"Conheça mais sobre nossa empresa\"\n        },\n        {\n          \"title\": \"⭐ Feedbacks\",\n          \"rowId\": \"feedbacks\",\n          \"description\": \"Veja avaliações de nossos clientes\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "2859b4c3-975a-4c26-91c3-84bbe45039b4",
+      "name": "naoEntendi",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2640,
+        1280
+      ],
+      "retryOnFail": true,
+      "executeOnce": true,
+      "maxTries": 5,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+                    "rightValue": "=perguntas_frequentes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "76fac698-a501-4991-8bf6-e860d2bcdd91"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pergtFreq"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "aaac8c8d-8924-42d4-b07a-7c50ba3a7a2c",
+                    "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+                    "rightValue": "perguntasFrequentesDois",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "freqDois"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "66794e04-b556-4373-aca6-c884cb2d3bde",
+                    "leftValue": "={{ $('dadosImportantes').first().json.escolhaDaLista }}",
+                    "rightValue": "orcamento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "orcamento"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "afaf2532-668c-4922-a7c2-96affa9a5762",
+                    "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+                    "rightValue": "iniciarOrca",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "iniciarOrca"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5e3b0be5-9ee1-4def-a0e9-c671f50beb53",
+                    "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+                    "rightValue": "confOrca",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "confOrca"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c1f64acf-1148-4f16-a366-9a3c41fcc3c7",
+                    "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+                    "rightValue": "agrdEnder",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "agrdEnder"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ab71219b-c492-4ca1-bbf5-07ec5dc37001",
+                    "leftValue": "={{ $('procura_cliente').first().json.etapa_cliente }}",
+                    "rightValue": "finaAgend",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "finaAgend"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "085a469c-f662-4a20-830c-b36b8d311ab7",
+                    "leftValue": "={{ $('dadosImportantes').first().json.escolhaDaLista }}",
+                    "rightValue": "quem_somos",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "quem_somos"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b38b412b-41a7-414c-9046-503246a138c7",
+                    "leftValue": "={{ $('dadosImportantes').first().json.escolhaDaLista }}",
+                    "rightValue": "portfolio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "portfolio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "492ab1b8-3560-4f9d-8833-c2ca6f056c5a",
+                    "leftValue": "={{ $('dadosImportantes').first().json.escolhaDaLista }}",
+                    "rightValue": "feedbacks",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "feedbacks"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -2460,
+        780
+      ],
+      "id": "566fe965-33b1-4d20-b468-1d236cbbbcab",
+      "name": "verificaBotaoEscolhido"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "perguntas_frequentes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "categoria_lista",
+              "keyValue": "lista_valores"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1960,
+        400
+      ],
+      "id": "16248bbd-557e-4e60-a975-666c26c7f8ea",
+      "name": "listaValores",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "perguntas_frequentes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "categoria_lista",
+              "keyValue": "lista_duvidas_gerais"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2080,
+        400
+      ],
+      "id": "ef8dac3c-6491-4671-849b-3d622583eb63",
+      "name": "listaDuvidasGerais",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "lista_midias",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1840,
+        400
+      ],
+      "id": "5d1ebe66-5fcb-4e1f-a8e1-650444f4ce96",
+      "name": "buscaMidias",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst listaFormatada = items.map(item => {\n  return `${item.json.midiaComodo}: ${item.json.linkMidia}`;\n}).join('\\n');\n\nreturn [{\n  json: {\n    resultado: listaFormatada\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1720,
+        400
+      ],
+      "id": "6b6b0924-eae4-4f18-be0d-ec1d1ba08901",
+      "name": "listaMidias"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1620,
+        540
+      ],
+      "id": "52480d4e-6869-4ac4-97f6-153c7f1012ff",
+      "name": "OpenAI Chat Model2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "44647d16-3c9f-4b3e-b1ef-b5b8fc1eddb8",
+                    "leftValue": "={{ $('classificadorGeral').first().json.output }}",
+                    "rightValue": "transferir",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "transferir"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2f82ee74-13f8-44af-8bfc-0a79d2850320",
+                    "leftValue": "={{ $('classificadorGeral').first().json.output }}",
+                    "rightValue": "retirar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "retirar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('classificadorGeral').first().json.output }}",
+                    "rightValue": "encaminhar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "11b203db-85e5-47c7-b421-2ede98b5772f"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "encaminhar"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1240,
+        400
+      ],
+      "id": "4c5ded1a-0bfd-4061-8fae-dda9262022b6",
+      "name": "verificaNDO"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Mensagem do Cliente: \"{{ $('dadosImportantes').first().json.mensagemCliente }}\".",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um assistente da empresa Teciart. Sua função é classificar as dúvidas dos clientes de acordo com as suas listas.\n\nUse as listas informadas a seguir para verificar a melhor forma de responder os clientes. Lista de dúvidas gerais: \"{{ $('listaDuvidasGerais').first().json.lista_aqui }}\". Lista de Valores: \"{{ $('listaValores').first().json.lista_aqui }}\". Lista de Vídeos: \"{{ $('listaMidias').first().json.resultado }}\". Ou seja, as respostas para as dúvidas dos clientes estarão dentro das duas listas.\n\nVocê vai classificar a mensagem dos clientes em uma dessas categorias:\n\n1. \"Perfeito, irei te encaminhar agora mesmo!\" -> Quando o cliente citar algum produto que viu no site, pedir alguma mídia ou CITAR ALGUM AMBIENTE QUE ESTÁ NA SUA LISTA DE VÍDEOS, por exemplo alguma mídia que tem na sua lista de Vídeos, por exemplo o vídeo do Banheiro, Corredor, Cozinha, Infantil, Piso ou Quarto, responda obrigatoriamente: \"Perfeito, irei te encaminhar agora mesmo!\". Você OBRIGATORIAMENTE deverá ter essa resposta de acordo com o teor da mensagem do cliente.\n\nExemplo de Diálogo para você responder com \"Perfeito, irei te encaminhar agora mesmo!\":\n\n- Diálogo 1 - \nCliente: \"Gostaria de comprar material para o meu piso, mas estou na duvida, poderia me ajudar?\"\n\nVocê: \"Perfeito, irei te encaminhar agora mesmo!\". \n\n- Diálogo 2 -\nCliente: \"Estou interessado em material para a minha cozinha\"\n\nVocê: \"Perfeito, irei te encaminhar agora mesmo!\".\n\n- Diálogo 3 -\nCliente: \"Estou querendo ver materiais para banheiro\"\n\nVocê: \"Perfeito, irei te encaminhar agora mesmo!\".\n\nOu seja, verifique cada palavra da mensagem do cliente e faça uma comparação, se o cliente falar QUALQUER COISA relacionado a algum video/midia na sua lista de vídeos/mídias, você deverá responder como no exemplo acima.\n \n2. \"Ok, irei te transferir, um momento!\" -> Quando o cliente responder algo relacionado a \"Tenho Interesse\", \"Quero Comprar\", \"Quero Fazer o Pedido\", \"Quero fazer orçamento\", \"Fazer Orçamento\", \"Quero Agendar\", \"Quero fazer o agendamento\" ou algo relacionado a compra ou iniciar o agendamento, responda OBRIGATORIAMENTE: \"Ok, irei te transferir, um momento!. Caso o cliente tenha dúvidas sobre como funciona o agendamento, NÃO responda \"Ok, irei te transferir, um momento!\" mas sim responda: \"Irei retirar as suas dúvidas agora mesmo!\".\n\n3. \"Irei retirar as suas dúvidas agora mesmo!\" -> Uma duvida relacionada a algum item na sua Lista de Dúvidas Gerais ou Lista de Valores. Se o cliente tiver dúvidas sobre como funciona o agendamento, você responderá OBRIGATORIAMENTE: \"Irei retirar as suas dúvidas agora mesmo!\".\n\nOu seja, você vai identificar a mensagem do cliente e vai responder de acordo com os exemplos acima."
+        }
+      },
+      "id": "302a22f1-2bd4-4b70-bc5e-eaa4681cea7b",
+      "name": "classificadorGeral",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -1600,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -680,
+        300
+      ],
+      "id": "8f4dc260-5f06-4dd6-a769-9f63b7614295",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Mensagem do Cliente: \"{{ $('dadosImportantes').first().json.mensagemCliente }}\".",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um assistente da empresa Teciart. Sua função é responder/interagir com os clientes de forma simpática e gentil, sempre procurando responder/retirar todas as dúvidas dos clientes. \n\nO nome do Cliente está aqui dentro: \"{{ $('procura_cliente').first().json.nome_cliente }}\", ocasionalmente utilize apenas o primeiro nome nas suas respostas.\n\nVocê tem uma memória para sempre verificar o diálogo com os clientes individualmente, e OBRIGATORIAMENTE os responder de uma forma diferente da anterior.\n\nVocê está proibido de informar \"Você\" ao responder o cliente, ou seja, apenas seja direto na resposta.\n\nCaso você e o cliente já tenham conversado sobre mais de 2 dúvidas, sempre o incentive a fazer o orçamento/agendar a instalação.\n\nUse as listas informadas a seguir para verificar a melhor forma de responder os clientes. Lista de dúvidas gerais: \"{{ $('listaDuvidasGerais').first().json.lista_aqui }}\". Lista de Valores: \"{{ $('listaValores').first().json.lista_aqui }}\". Ou seja, as respostas para as dúvidas dos clientes estarão dentro das duas listas.\n\nExemplo de diálogos a serem obrigatoriamente usados como base:\n\n- Diálogo 1 -\n\"Cliente: Dúvidas Frequentes/Tenho dúvidas/Quero Informações\n\nVocê: Você já sabe qual ambiente está interessado?\n\nCliente: No banheiro\n\nVocê: Ah, ok, as paredes do banheiro estão com azulejo na massa corrida ou apenas rebocadas?\n\nCliente: Com azulejo\n\nVocê: Para banheiros com azulejo, recomendamos o adesivo de vinil, é um material muito resistente, ele é à prova d'água, podendo molhar e limpar que o material não vai estragar\"\n\n- Diálogo 2 -\n\"Cliente: Qual a diferença entre tecido e adesivo?\n\nVocê: O tecido tem um acabamento sofisticado, aconchegante, ele permite a respiração da parede, ele também evita umidade e possui estampas em alta definição. Ele possui tratamento impermeabilizante e não reflete luz\n\nAgora o adesivo é prático, totalmente lavável, ele também é impermeável, completamente versátil, e a escolha ideal para áreas molhadas (inclusive chão) com opções específicas!\".\n\n- Diálogo 3 -\n\"Cliente: Tenho duas dúvidas: é o mesmo valor para todas as regiões e é o mesmo valor dos materiais?\n\nVocê: Não, [PRIMEIRO_NOME_CLIENTE], cada região tem um valor diferente pois cobramos de acordo com a distância. Os materiais também possuem preços diferentes\".\n\n- Diálogo 4 -\n\"Cliente: Como funciona a garantia?\n\nVocê: Os materiais não tem garantia, mas a nossa instalação tem garantia de 6 meses, tá? Caso você precise retirar mais dúvidas, estou à disposição para te ajudar! Se quiser fazer o seu orçamento só me contar, ok?\"."
+        }
+      },
+      "id": "bc536adb-db8e-4a0b-b2db-e26972b41ea6",
+      "name": "assistenteTexto",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -680,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Mensagem do Cliente: \"{{ $('dadosImportantes').first().json.mensagemCliente }}\".",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é uma organizadora de orçamentos da empresa Teciart, mas você é PROIBIDA de se apresentar ou dar alguma saudação. Sua função é verificar se a resposta do cliente envolve essas informações: 1 - Ambiente/Cômodo para aplicação, 2 - Altura, 3 - Comprimento 4 - Largura, 5 - Material (Piso ou Parede). Você também é PROIBIDO de informar para o cliente algo relacionado a variáveis, por favor. Não precisa repetir as informações que você anotou para o cliente.\n\nAqui está o nome do cliente: \"{{ $('procura_cliente').first().json.nome_cliente }}\", utilize ocasionalmente o primeiro nome do cliente nas suas respostas, mas não utilize mem excesso.\n\nVocê deve OBRIGATORIAMENTE seguir este passo a passo:\n\n1. Após o cliente responder as informações necessárias descritas acima, armazene as informações recebidas: \"Ambiente/Cômodo para aplicação, Altura, Comprimento, Largura e Material (Piso ou Parede)\", nas variáveis `ambienteoucomodo`, `altura`, `comprimento`, `largura` e `material`. \n\nSe a resposta do cliente for as informações necessárias descritas anteriormente, você vai responder com a seguinte mensagem de agradecimento:\n\n\"Ok, um momento\".\n\nSe o cliente escrever algo relacionado a esses exemplos abaixo:\n\n1 - Tenho dúvidas\n2 - Como funciona o orçamento?\n3 - Mais informações\n\nResponda OBRIGATORIAMENTE com um \"Ok, vou te transferir\".\n\nSe o cliente não informar as informações necessárias, ou não falar algo relacionado aos exemplos acima, verifique qual a informação que falta ele lhe informar e pergunte de forma simpática e educada a informação que falta. Também pergunte se ele está precisando de ajuda/retirar dúvidas para continuarmos com o orçamento.\n\nVerifique se você já perguntou anteriormente para o cliente aquela informação, ou seja, você é PROIBIDA de repetir a mesma pergunta da mesma forma que anteriormente. Seja dinâmica ao pedir a informação que falta para o cliente. \n\nExemplos de perguntas dinâmicas:\n\"[PRIMEIRO_NOME_CLIENTE], a gente tá montando o seu orçamento, lembra? Me informa por favor o cômodo ou ambiente para prosseguirmos!\" \n\n\"Não entendi, poderia repetir, por favor?\"\n\n\"[PRIMEIRO_NOME_CLIENTE], poderia me informar (repetir aqui a informação que falta), por favor? Assim conseguimos seguir com o orçamento!\"\n\nNão utilize palavras como \"agora\", \"nesse momento\" ou algo relacionado, para não causar a impressão de grosseria. Seja simpática e delicada com os clientes.\n\nCaso o cliente lhe cumprimente com \"Bom dia\", \"Boa tarde\", ou \"Boa noite\", responda de maneira educada ao cumprimento dele e peça de forma simpática a informação que ainda lhe falta.\n\n2. Caso o cliente informe que o ambiente que ele quer aplicar o material é Banheiro, siga o exemplo abaixo de diálogo, para manter a conversa dinâmica:\n\n\"Você: E qual seria o ambiente que você quer aplicar o material?\n\nCliente: Banheiro\n\nVocê: Ah, ok, as paredes do banheiro estão com azulejo na massa corrida ou apenas rebocadas?\n\nCliente: Com azulejo\n\nVocê: Para banheiros com azulejo, recomendamos o adesivo de vinil, é um material muito resistente, ele é à prova d'água, podendo molhar e limpar que o material não vai estragar\"\n\n3. Após o cliente informar o Ambiente/Cômodo para aplicação, Altura, Comprimento, Largura e Material (Piso ou Parede), responda dessa forma para o cliente:\n\nExemplo de Interação ao receber as informações necessárias:\n\n\"Ok, um momento\"."
+        }
+      },
+      "id": "158405c5-7527-4037-a882-0cb4e07badea",
+      "name": "assOrcamento",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -2080,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -2080,
+        900
+      ],
+      "id": "9d1542b6-6213-490f-817d-18a120ad3036",
+      "name": "OpenAI Chat Model1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "banco_dados_clientes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "wpp_cliente",
+              "condition": "eq",
+              "keyValue": "={{ $('procura_cliente').first().json.wpp_cliente }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "etapa_cliente",
+              "fieldValue": "=iniciarOrca"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -100
+      ],
+      "id": "ef1fc5ea-d730-4a58-bec4-b81d67dea394",
+      "name": "iniciarOrca",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('assOrcamento').first().json.output }}",
+                    "rightValue": "Ok, um momento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "efa511c2-76f2-4f1c-8915-da8b034b4db7"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "receiveEvery"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "60001925-920b-4b0f-a495-2f359d33721e",
+                    "leftValue": "={{ $('assOrcamento').first().json.output }}",
+                    "rightValue": "Ok, vou te transferir",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "outraResposta"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1720,
+        760
+      ],
+      "id": "789a2c33-73c1-4d72-880f-7e8ce6c72bc4",
+      "name": "caminhosDiferentes"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoMensagem }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n    \"text\": \"{{ $('assOrcamento').first().json.output.replace(/(\\r\\n|\\n|\\r)/gm, '\\\\n').replace(/\"/g, '\\\\\"') }}\",\n    \"delay\": 2100\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1440,
+        840
+      ],
+      "id": "3f9bdbc6-7056-4fe1-b0ed-fd01bec5353e",
+      "name": "respostaI.A"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('procura_cliente').first().json.wpp_cliente }}",
+        "tableName": "joinville_manutencao_orcamento",
+        "contextWindowLength": 30
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -1820,
+        920
+      ],
+      "id": "053789ad-e13e-42f5-af3e-48a6bbe39c23",
+      "name": "orcamento"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('procura_cliente').first().json.wpp_cliente }}",
+        "tableName": "joinville_manutencao",
+        "contextWindowLength": 30
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -1520,
+        560
+      ],
+      "id": "7f85ff35-3f59-4e8e-b9eb-2613f872ed77",
+      "name": "classificador"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * \nFROM joinville_manutencao_orcamento\nWHERE session_id = '{{ $('procura_cliente').first().json.wpp_cliente }}'\nORDER BY id DESC;\n",
+        "options": {}
+      },
+      "id": "39f17c39-8d97-4868-adc1-2a27fbce5eb6",
+      "name": "Select",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -1320,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sessionMap = {};\n\nitems.forEach(item => {\n  const sessionId = item.json.session_id;\n  const message = item.json.message;\n\n  if (!sessionMap[sessionId]) {\n    sessionMap[sessionId] = [];\n  }\n\n  if (message.type === 'human') {\n    sessionMap[sessionId].push(`Cliente: ${message.content}`);\n  } else if (message.type === 'ai') {\n    sessionMap[sessionId].push(`IA: ${message.content}`);\n  }\n});\n\nreturn Object.entries(sessionMap).map(([sessionId, messages]) => {\n  return {\n    json: {\n      session_id: sessionId,\n      full_dialogue: messages.join('\\n')\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1200,
+        680
+      ],
+      "id": "8f63fd0a-8347-4d3d-9e68-fb67c193cb49",
+      "name": "unindoDialogo"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        820
+      ],
+      "id": "9409b75c-9257-4a2b-ba99-441e7dea954e",
+      "name": "OpenAI Chat Model8"
+    },
+    {
+      "parameters": {
+        "jsCode": "const respostaIA = items[0].json.output;\n\nconst match = respostaIA.match(/```json\\n([\\s\\S]*?)\\n```/);\n\nif (match && match[1]) {\n    const dadosExtraidos = JSON.parse(match[1]);\n\n    return [{\n        json: {\n            ambienteoucomodo: dadosExtraidos.ambienteoucomodo || \"Não informado\",\n            altura: dadosExtraidos.altura || \"Não informado\",\n            comprimento: dadosExtraidos.comprimento || \"Não informado\",\n            largura: dadosExtraidos.largura || \"Não informado\",\n            material: dadosExtraidos.material || \"Não informado\"\n        }\n    }];\n} else {\n    throw new Error(\"Não foi possível extrair os dados do JSON.\");\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        680
+      ],
+      "id": "f567898b-0636-4588-970d-4cb0ca07ec62",
+      "name": "saidaSeparada"
+    },
+    {
+      "parameters": {
+        "tableId": "dados_orcamento",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "wpp_cliente",
+              "fieldValue": "={{ $('procura_cliente').first().json.wpp_cliente }}"
+            },
+            {
+              "fieldId": "regiao_resposta",
+              "fieldValue": "={{ $('procura_cliente').first().json.regiao_resposta }}"
+            },
+            {
+              "fieldId": "nome_cliente",
+              "fieldValue": "={{ $('procura_cliente').first().json.nome_cliente }}"
+            },
+            {
+              "fieldId": "ambiente_comodo",
+              "fieldValue": "={{ $('saidaSeparada').first().json.ambienteoucomodo }}"
+            },
+            {
+              "fieldId": "altura",
+              "fieldValue": "={{ $('saidaSeparada').first().json.altura }}"
+            },
+            {
+              "fieldId": "comprimento",
+              "fieldValue": "={{ $('saidaSeparada').first().json.comprimento }}"
+            },
+            {
+              "fieldId": "largura",
+              "fieldValue": "={{ $('saidaSeparada').first().json.largura }}"
+            },
+            {
+              "fieldId": "material",
+              "fieldValue": "={{ $('saidaSeparada').first().json.material }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        680
+      ],
+      "id": "edd28401-32d4-4eca-b330-09d8c9b0190a",
+      "name": "atualizarInfo"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoMensagem }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n    \"text\": \"Obrigada, um segundo, vou fazer o orçamento para você\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1440,
+        680
+      ],
+      "id": "12371c11-d8a2-4ae9-87aa-0e06e4c477d9",
+      "name": "waitClient"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        820
+      ],
+      "id": "cb156e4c-6570-489c-a842-8a55d054e2b1",
+      "name": "OpenAI Chat Model11"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Preciso que faça o cálculo do orçamento usando a lista de endereço e detalhes do orçamento aqui dentro: \"{{ $('unindoValor').first().json.lista }}\"",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um assistente de uma empresa de nome Teciart. Essa empresa fica localizada em Joinville. Sua função é fazer o orçamento usando como base a lista recebida aqui dentro: \"{{ $('unindoValor').first().json.lista }}\". \n\nEsses são os valores referentes a distância que você deverá usar como base para o cálculo final:\n\"{{ $('logicaRegiao').first().json.lista_aqui }}\".\n\nEssas são as regras/valores que você deverá OBRIGATORIAMENTE usar como base para calcular:\n\n- Adesivo Vinílico (Parede):\nPreço da Mão de Obra: R$ 65,00\n\nPreço do Material: R$ 75,90\n\nPreço Material + Mão de Obra: R$ 135,90\n\nTipo de Cotação: Por Metro Quadrado (M²)\n\n- Adesivo Vinílico (Chão):\nPreço da Mão de Obra: R$ 65,00\n\nPreço do Material: R$ 89,90\n\nPreço Material + Mão de Obra: R$ 148,90\n\nTipo de Cotação: Por Metro Quadrado (M²)\n\n- Adesivo Vinílico (Teto):\nPreço da Mão de Obra: R$ 80,00\n\nPreço do Material: R$ 75,90\n\nPreço Material + Mão de Obra: R$ 155,90\n\nTipo de Cotação: Por Metro Quadrado (M²)\n\n- Adesivo Vinílico (Móveis):\nPreço da Mão de Obra: R$ 120,00\n\nPreço do Material: R$ 75,90\n\nPreço Material + Mão de Obra: R$ 195,90\n\nTipo de Cotação: Por Metro Quadrado (M²)\n\n- Tecido:\nPreço da Mão de Obra: R$ 50,00\n\nPreço do Material: N/D\n\nPreço Material + Mão de Obra: R$ 94,90\n\nTipo de Cotação: Por Metro Quadrado (M²)\n\n- Placa Marmorizada:\nPreço da Mão de Obra: R$ 500,00\n\nPreço do Material: R$ 700,00\n\nPreço Material + Mão de Obra: R$ 1.200,00\n\nTipo de Cotação: Por Peça\n\nExemplo de Cálculo que você deve OBRIGATORIAMENTE seguir:\nÁrea total para todas as 4 paredes:\nÁrea total: 6,3488m² (2 paredes com 1,24m de largura) + 12,5440m² (2 paredes com 2,45m de comprimento) = 18,8928m²\nMedidas do Piso: 1,24m (largura) × 2,45m (comprimento) = 3,038m²\nCálculo do Orçamento para Paredes:\nCusto da Mão de Obra por m²: R$65,00\n\nCusto do Material por m²: R$75,90\n\nCusto Total por m² (Mão de obra + Material): R$139,90\n\nCusto Total para Paredes:\nMão de obra para Paredes: 18,89m² × R$65,00 = R$1.228,05\n\nMaterial (Adesivo Vinílico para Parede): 18,89m² × R$75,90 = R$1.432,57\n\nTotal para Paredes: R$2.660,62\nCálculo do Orçamento para Piso:\nCusto do Adesivo para Piso por m²: R$89,90 (adesivo específico para pisos)\n\nCusto da Mão de Obra por m²: R$65,00\n\nCusto Total por m² (Mão de obra + Material para Piso): R$154,90\n\n Custo Total para Piso:\nMão de obra para Piso: 3,038m² × R$65,00 = R$197,47\n\nMaterial (Adesivo Vinílico para Piso): 3,038m² × R$89,90 = R$272,42\n\nTotal para Piso: R$469,89\n\nOrçamento Final:\nTotal para Paredes (Adesivo Vinílico): R$2.660,62\n\nTotal para Piso (Adesivo Vinílico para Piso): R$469,89\n\nTotal Geral (Paredes + Piso): R$3.130,51\n\ne quando é banheiro acrescentamos R$80,00 de despesa do almoço, colocamos a parte ou embutimos no orçamento\n\nlembrando quando for banheiro precisa considerar as 4 paredes (parede tem um valor) considerar piso ( piso tem outro valor o material)\nExemplo: se o banheiro tem\n2,56 alt\n1,24 larg\n2,45 comp\n consideramos \nsão 4 paredes 2,56 alt\nsão 2 paredes 1,24 larg\nsão 2 paredes 2,45 comp\n\no tecido tem 1,40 de largura, precisa considerar isso quando for fazer o orçamento da parede e o adesivo tem 1,22 de largura\n Para cada material, a gente vai dividir a largura da parede pela largura do rolo pra saber quantas faixas serão necessárias. Depois multiplica pela altura pra saber quantos metros corridos (tecido) ou metros quadrados (adesivo) vão ser usados."
+        }
+      },
+      "id": "b0127c22-b3d6-4eeb-b6a8-c6e5d8f864cc",
+      "name": "assistenteCalculo",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -80,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const entrada = items[0].json;\n\nconst lista = [\n  `ID: ${entrada.id || \"Não informado\"}`,\n  `Criado em: ${entrada.created_at || \"Não informado\"}`,\n  `Nome do cliente: ${entrada.nome_cliente || \"Não informado\"}`,\n  `WhatsApp: ${entrada.wpp_cliente || \"Não informado\"}`,\n  `Região: ${entrada.regiao_resposta || \"Não informado\"}`,\n  `Ambiente/Cômodo: ${entrada.ambiente_comodo || \"Não informado\"}`,\n  `Altura: ${entrada.altura || \"Não informado\"}`,\n  `Comprimento: ${entrada.comprimento || \"Não informado\"}`,\n  `Largura: ${entrada.largura || \"Não informado\"}`,\n  `Material: ${entrada.material || \"Não informado\"}`,\n  `Endereço: ${entrada.nome_rua || \"Não informado\"}, ${entrada.numero_residencia || \"Não informado\"}, ${entrada.bairro || \"Não informado\"} - CEP: ${entrada.cep || \"Não informado\"}`\n];\n\nreturn [\n  {\n    json: {\n      lista\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        680
+      ],
+      "id": "aca5d93e-b57f-49cd-b259-0861a8a9be41",
+      "name": "unindoValor"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "perguntas_frequentes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "2"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -680,
+        680
+      ],
+      "id": "a4f11509-301c-4f61-b93d-3836b80a1d25",
+      "name": "logicaRegiao",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1140,
+        1100
+      ],
+      "id": "59da2fe5-efed-4bd9-8ef0-07d95d9f0a67",
+      "name": "OpenAI Chat Model12"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Me informe o valor do orçamento descrito aqui dentro: \"{{ $('assistenteCalculo').first().json.output }}\"",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um assistente de uma empresa de nome Teciart. Essa empresa fica localizada em Joinville. Sua função é informar o valor do orçamento aqui dentro: \"{{ $('assistenteCalculo').first().json.output }}\"\n\nExemplo de Resposta:\n\n*O valor do orçamento é de:* R$ 12.491,00.\\n\\n**Resumo do Orçamento**:\\n- Área total das paredes: 90 m²\\n- Custo total do serviço (material + mão de obra): R$ 12.231,00\\n- Taxa de deslocamento: R$ 260,00\\n- *Total Geral:* R$ 12.491,00"
+        }
+      },
+      "id": "82b211ec-9b77-4c27-a312-9e0cc50a0ba4",
+      "name": "assistenteCalculo1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -1140,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoMensagem }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n    \"text\": \"{{ $('assistenteCalculo1').first().json.output.replace(/(\\r\\n|\\n|\\r)/gm, '\\\\\\\\n').replace(/\"/g, '\\\\\\\\\"') }}\",\n    \"delay\": 2100\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        960
+      ],
+      "id": "74f58753-f50f-4710-8028-5bb792a09d9a",
+      "name": "respostaI.A4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoLista }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n  \"title\": \"📌 Finalizar Orçamento\",\n  \"description\": \"Escolha uma das opções abaixo para continuar\",\n  \"buttonText\": \"Abrir Opções\",\n  \"footerText\": \"\",\n  \"sections\": [\n    {\n      \"title\": \"Menu de Opções\",\n      \"rows\": [\n        {\n          \"title\": \"✅ Concluir Orçamento\",\n          \"rowId\": \"concluir_orcamento\"\n        },\n        {\n          \"title\": \"🔄 Refazer Orçamento\",\n          \"rowId\": \"refazer_orcamento\"\n        },\n        {\n          \"title\": \"📋 Menu\",\n          \"rowId\": \"menu\"\n        },\n        {\n          \"title\": \"🗨️ Falar com a nossa equipe\",\n          \"rowId\": \"falar_com_equipe\"\n        }\n      ]\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "id": "999eb48c-93d8-43da-b46b-85637b45ea3a",
+      "name": "listaOrca",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -740,
+        960
+      ],
+      "retryOnFail": true,
+      "executeOnce": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -620,
+        1100
+      ],
+      "id": "e1337369-cd27-4218-a1f0-9d52a6aafe6d",
+      "name": "OpenAI Chat Model15"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('assistenteCalculo1').first().json.output }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um assistente especializado em organizar informações de clientes. Sua função é analisar a seguinte conversa:  \n\n\"{{ $('assistenteCalculo1').first().json.output }}\"  \n\nDentro dessa conversa, identifique e extraia os seguintes dados:  \n- **Orçamento Total:** Extraia o valor total do orçamento, ou seja, o geral/final.  \n- **Custo total do serviço:** Extraia o valor do material + mão de obra.  \n- **Custo do Deslocamento:** Extraia o valor do deslocamento.  \n\n⚠️ **Importante:** Se algum dos dados não estiver presente, retorne \"Não informado\" nesse campo.  \n\nFormate a saída no seguinte modelo JSON:  \n\n```json\n{\n  \"orcamentotaloufinal\": \"R$ 1.579,00\",\n  \"totalservicomaodeobra\": \"R$ 1.409,00\",\n  \"custodeslocamento\": \"R$ 90,00\"\n}"
+        }
+      },
+      "id": "f99f8abb-371b-42f0-8696-2ca00b466f70",
+      "name": "assistenteCalculo2",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -620,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const respostaIA = items[0].json.output;\n\nconst match = respostaIA.match(/```json\\n([\\s\\S]*?)\\n```/);\n\nif (match && match[1]) {\n    const dadosExtraidos = JSON.parse(match[1]);\n\n    return [{\n        json: {\n            orcamentotaloufinal: dadosExtraidos.orcamentotaloufinal || \"Não informado\",\n            totalservicomaodeobra: dadosExtraidos.totalservicomaodeobra || \"Não informado\",\n            custodeslocamento: dadosExtraidos.custodeslocamento || \"Não informado\"\n        }\n    }];\n} else {\n    throw new Error(\"Não foi possível extrair os dados do JSON.\");\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -340,
+        960
+      ],
+      "id": "608983ea-68c2-46d9-8270-afee4f30cf0d",
+      "name": "saidaSeparada3"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "dados_orcamento",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "wpp_cliente",
+              "condition": "eq",
+              "keyValue": "={{ $('procura_cliente').first().json.wpp_cliente }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "orcamentoTotalFinal",
+              "fieldValue": "={{ $('saidaSeparada3').first().json.orcamentotaloufinal }}"
+            },
+            {
+              "fieldId": "servicoMaoDeObra",
+              "fieldValue": "={{ $('saidaSeparada3').first().json.totalservicomaodeobra }}"
+            },
+            {
+              "fieldId": "custoDeslocamento",
+              "fieldValue": "={{ $('saidaSeparada3').first().json.custodeslocamento }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        960
+      ],
+      "id": "c450e632-ac33-474c-9332-f0ddd160b922",
+      "name": "atualizarInfo7"
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "joinville_manutencao_orcamento",
+          "mode": "list"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $('procura_cliente').first().json.wpp_cliente }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -100,
+        960
+      ],
+      "id": "1c3eff2d-b688-4d0f-84d9-2778cfbb8182",
+      "name": "Postgres1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "banco_dados_clientes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "wpp_cliente",
+              "condition": "eq",
+              "keyValue": "={{ $('procura_cliente').first().json.wpp_cliente }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "etapa_cliente",
+              "fieldValue": "=confOrca"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        80,
+        960
+      ],
+      "id": "d9a343a3-aacf-45c0-9714-ffb5c552d136",
+      "name": "confOrca",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8452b580-264a-463c-b000-a0990e84f1ad",
+              "leftValue": "={{ $('dadosImportantes').first().json.tipoLista }}",
+              "rightValue": "listResponseMessage",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2080,
+        1060
+      ],
+      "id": "ce84602a-08e6-4760-a550-e84e89e50c58",
+      "name": "tipoResposta2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoMensagem }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n    \"text\": \"Ótimo! Por favor, me envia o endereço dessa forma:\\n\\nNome da Rua:\\nNúmero da Residência/Prédio\\nBairro\\nCEP\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1440,
+        1000
+      ],
+      "id": "f0e8c063-3e8a-4b92-a841-3eb80006620a",
+      "name": "pedirEnd"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('dadosImportantes').first().json.escolhaDaLista }}",
+                    "rightValue": "=concluir_orcamento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "76fac698-a501-4991-8bf6-e860d2bcdd91"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "concluir_orcamento"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5e3b0be5-9ee1-4def-a0e9-c671f50beb53",
+                    "leftValue": "={{ $('dadosImportantes').first().json.escolhaDaLista }}",
+                    "rightValue": "refazer_orcamento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "refazer_orcamento"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5c7b3625-7130-4422-9d4a-4f84c9af5f5b",
+                    "leftValue": "={{ $('dadosImportantes').first().json.escolhaDaLista }}",
+                    "rightValue": "menu",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "menu"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "aa3306c9-0da7-4566-a9bc-79274c161738",
+                    "leftValue": "={{ $('dadosImportantes').first().json.escolhaDaLista }}",
+                    "rightValue": "falar_com_equipe",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "falar_com_equipe"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1840,
+        1020
+      ],
+      "id": "1560e547-b503-47f8-99e9-767734a4eaa6",
+      "name": "verificaBotaoEscolhido1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "banco_dados_clientes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "wpp_cliente",
+              "condition": "eq",
+              "keyValue": "={{ $('procura_cliente').first().json.wpp_cliente }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "etapa_cliente",
+              "fieldValue": "=agrdEnder"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1320,
+        1000
+      ],
+      "id": "9f280107-b9c1-4f37-8ede-f5d231bfdce6",
+      "name": "atualizarInfo1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -2080,
+        1600
+      ],
+      "id": "9166f5ea-d979-4dbb-bdbd-b0dbd5e7b1aa",
+      "name": "OpenAI Chat Model7"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('procura_cliente').first().json.wpp_cliente }}",
+        "tableName": "joinville_manutencao_endereco",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -1840,
+        1580
+      ],
+      "id": "9ee0f9d2-c959-490c-b184-03d4b8d67dd6",
+      "name": "endereco"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Mensagem do Cliente: \"{{ $('dadosImportantes').first().json.mensagemCliente }}\". ",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um Atendente de  Cadastro da Teciart, sua função é verificar se a resposta do cliente envolve essas 5 informações: 1 - Nome da Rua, 2 - Número da Residência/Prédio, 3 - Bairro, 4 - CEP e 5 - Email. Seu nome é Amanda. Você é PROIBIDO de se apresentar ou falar algo que não seja sobre o cadastro, você também é PROIBIDO de informar para o cliente algo relacionado a variáveis, por favor. Não precisa repetir as informações que você anotou para o cliente.\n\nPor favor, você deve OBRIGATORIAMENTE seguir este passo a passo:\n\n1. Após o cliente responder as informações para novo cadastro como o Nome da Rua, Número da Residência/Prédio, Bairro, CEP e Email, armazene o nome da rua informado, número da residência/prédio informado, bairro informado, CEP informado e email informado, nas variáveis `nomerua`, `numeroresidenciapredio`,`bairro`, `cep` e `email`. \n\nSe a resposta do cliente for o nome da rua, número da residência/prédio, bairro, CEP e email, você vai responder com a seguinte mensagem de agradecimento:\n\n\"Ok, um momento\".\n\nSe o cliente não informar o nome da rua, número da residência/prédio, bairro, CEP e email ou escrever algo diferente, peça de forma simpática a informação que falta, ou seja, o nome da rua, número da residência/prédio, bairro, CEP e email:\n\n2. Após o cliente informar o nome da rua, número da residência/prédio, bairro, CEP e email, responda dessa forma para o cliente:\n\nExemplo de Interação ao receber o nome da rua, número da residência/prédio, bairro, CEP e email, você deve incluir os emoji na resposta:\n\n\"Ok, um momento\"."
+        }
+      },
+      "id": "f0555d1f-f86b-48dd-a16b-13d772624937",
+      "name": "verificaEndereco",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -2080,
+        1460
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "415ca5cb-2a15-4801-b559-051b613b3c9b",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "Ok",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1740,
+        1460
+      ],
+      "id": "633918e4-3ce8-4cdb-88c6-fb6b843e2fdf",
+      "name": "contemExatamente"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * \nFROM joinville_manutencao_endereco\nWHERE session_id = '{{ $('procura_cliente').first().json.wpp_cliente }}'\nORDER BY id DESC;\n",
+        "options": {}
+      },
+      "id": "cfc1ca8d-6e2d-49dd-bd55-c0ceebfb7b03",
+      "name": "Select1",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -1440,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sessionMap = {};\n\nitems.forEach(item => {\n  const sessionId = item.json.session_id;\n  const message = item.json.message;\n\n  if (!sessionMap[sessionId]) {\n    sessionMap[sessionId] = [];\n  }\n\n  if (message.type === 'human') {\n    sessionMap[sessionId].push(`Cliente: ${message.content}`);\n  } else if (message.type === 'ai') {\n    sessionMap[sessionId].push(`IA: ${message.content}`);\n  }\n});\n\nreturn Object.entries(sessionMap).map(([sessionId, messages]) => {\n  return {\n    json: {\n      session_id: sessionId,\n      full_dialogue: messages.join('\\n')\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1320,
+        1440
+      ],
+      "id": "445e8fa5-cec4-45f4-aa32-447449b1644c",
+      "name": "unindoDialogo1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1200,
+        1580
+      ],
+      "id": "b026d348-ea5a-45d8-a8cf-d61ddddd27de",
+      "name": "OpenAI Chat Model10"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('unindoDialogo1').first().json.full_dialogue }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um assistente especializado em organizar informações de clientes. Sua função é analisar a seguinte conversa:  \n\n\"{{ $('unindoDialogo1').first().json.full_dialogue }}\"  \n\nDentro dessa conversa, identifique e extraia os seguintes dados:  \n- **Nome da Rua:** Extraia todos os nomes da rua.  \n- **Número da Residência/Prédio:** Extraia o número da residência/prédio.  \n- **Nome do Bairro:** Extraia o bairro.  \n- **CEP:** Extraia o CEP.\n- **Email:** Extraia o Email.\n\n⚠️ **Importante:** Se algum dos dados não estiver presente, retorne \"Não informado\" nesse campo.  \n\nFormate a saída no seguinte modelo JSON:  \n\n```json\n{\n  \"nomedarua\": \"Rua Londrina\",\n  \"numeroresidenciapredio\": \"1006\",\n  \"nomedobairro\": \"De Fátima\",\n  \"cep\": \"62234395\" ou \"103322-11\",\n  \"email\": \"email.exemplo@gmail.com\"\n}"
+        }
+      },
+      "id": "3fdd413f-181f-40d5-a013-cfdf7284d6ea",
+      "name": "organizer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -1200,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const respostaIA = items[0].json.output;\n\nconst match = respostaIA.match(/```json\\n([\\s\\S]*?)\\n```/);\n\nif (match && match[1]) {\n    const dadosExtraidos = JSON.parse(match[1]);\n\n    return [{\n        json: {\n            nomedarua: dadosExtraidos.nomedarua || \"Não informado\",\n            numeroresidenciapredio: dadosExtraidos.numeroresidenciapredio || \"Não informado\",\n            nomedobairro: dadosExtraidos.nomedobairro || \"Não informado\",\n            cep: dadosExtraidos.cep || \"Não informado\",\n            email: dadosExtraidos.email || \"Não informado\"\n        }\n    }];\n} else {\n    throw new Error(\"Não foi possível extrair os dados do JSON.\");\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -920,
+        1440
+      ],
+      "id": "e2c19467-3516-44e2-8611-0f4fe17ddf36",
+      "name": "saidaSeparada1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "dados_orcamento",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "wpp_cliente",
+              "condition": "eq",
+              "keyValue": "={{ $('procura_cliente').first().json.wpp_cliente }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome_rua",
+              "fieldValue": "={{ $('saidaSeparada1').first().json.nomedarua }}"
+            },
+            {
+              "fieldId": "numero_residencia",
+              "fieldValue": "={{ $('saidaSeparada1').first().json.numeroresidenciapredio }}"
+            },
+            {
+              "fieldId": "bairro",
+              "fieldValue": "={{ $('saidaSeparada1').first().json.nomedobairro }}"
+            },
+            {
+              "fieldId": "cep",
+              "fieldValue": "={{ $('saidaSeparada1').first().json.cep }}"
+            },
+            {
+              "fieldId": "email_cliente",
+              "fieldValue": "={{ $('saidaSeparada1').first().json.email }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        1440
+      ],
+      "id": "0c244771-e2cc-4e7b-a547-334231d1e865",
+      "name": "atualizarInfo8"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -560,
+        1580
+      ],
+      "id": "d4af7703-5532-4728-8fa3-1830b091d090",
+      "name": "OpenAI Chat Model13"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('unindoValor1').first().json.lista }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um assistente da empresa Teciart. Sua função é analisar os detalhes do agendamento do cliente aqui dentro: \"{{ $('unindoValor1').first().json.lista }}\", e criar um resumo dos detalhes de forma direta para o cliente, por exemplo essa saída:\n\n\"A seguir os detalhes do agendamento:\n\n*Nome:* [Nome do Cliente]\n*Whatsapp:* [Whatsapp do Cliente]\n*Email:* [Email do Cliente]\n*Informações Gerais:* Piso para o Banheiro, em Blumenau, na rua Joinville, 1006 no Bairro de Fátima e no CEP 11662233. \n\n*Orçamento Final:* R$ 2.628,40\""
+        }
+      },
+      "id": "85cdb243-4c2c-459f-9477-a1e723654708",
+      "name": "retornaInfo",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -560,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const entrada = items[0].json;\n\nconst lista = [\n  `ID: ${entrada.id || \"Não informado\"}`,\n  `Criado em: ${entrada.created_at || \"Não informado\"}`,\n  `Nome do cliente: ${entrada.nome_cliente || \"Não informado\"}`,\n  `WhatsApp: ${entrada.wpp_cliente || \"Não informado\"}`,\n  `E-mail: ${entrada.email_cliente || \"Não informado\"}`,\n  `Região: ${entrada.regiao_resposta || \"Não informado\"}`,\n  `Ambiente/Cômodo: ${entrada.ambiente_comodo || \"Não informado\"}`,\n  `Altura: ${entrada.altura || \"Não informado\"}`,\n  `Comprimento: ${entrada.comprimento || \"Não informado\"}`,\n  `Largura: ${entrada.largura || \"Não informado\"}`,\n  `Material: ${entrada.material || \"Não informado\"}`,\n  `Endereço: ${entrada.nome_rua || \"Não informado\"}, ${entrada.numero_residencia || \"Não informado\"}, ${entrada.bairro || \"Não informado\"} - CEP: ${entrada.cep || \"Não informado\"}`,\n  `Orçamento final: ${entrada.orcamentoTotalFinal || \"Não informado\"}`,\n  `Serviço / Mão de Obra: ${entrada.servicoMaoDeObra || \"Não informado\"}`,\n  `Custo de deslocamento: ${entrada.custoDeslocamento || \"Não informado\"}`,\n  `Status: ${entrada.status || \"Não informado\"}`\n];\n\nreturn [\n  {\n    json: {\n      lista\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -680,
+        1440
+      ],
+      "id": "a4defdf9-8bc4-4121-a1de-3322489d039e",
+      "name": "unindoValor1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('unindoDialogo').first().json.full_dialogue }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um assistente especializado em organizar informações de clientes. Sua função é analisar a seguinte conversa:  \n\n\"{{ $('unindoDialogo').first().json.full_dialogue }}\"  \n\nDentro dessa conversa, identifique e extraia os seguintes dados:  \n- **Ambiente ou Cômodo:** Extraia todos os nomes de ambiente ou cômodo informado pelo cliente.  \n- **Altura:** Extraia a altura.  \n- **Comprimento:** Extraia o comprimento.  \n- **Largura:** Extraia a largura.\n- **Material:** Extraia o material (Piso ou Parede).\n\n⚠️ **Importante:** Quando o cliente informar por exemplo:\n\"Banheiro\n3 metros\n20 centimetros\n11 centímetros\nParede\"\n\nAssuma que foi lhe informado em ordem, ou seja, NO EXEMPLO ACIMA, você pode assumir que: altura = 3 metros, comprimento = 20 centímetros, largura = 11 centímetros e material parede.\n\n⚠️ **Importante:** Se houverem respostas iguais, como no exemplo abaixo, siga as instruções após o exemplo:\n\nIA: Poderia me informar a altura\nCliente: 2 metros\nIA: Qual o comprimento?\nCliente: 2 metros\n\nEntão associe 2 metros a variável de altura e 2 metros a variavel de comprimento.\n\nPesquise sempre pelas informações que fazem sentido, por padrão a pergunta sempre é nessa ordem:\n1. Cômodo/ambiente\n2. Altura\n3. Comprimento\n4. Largura\n5. Material\n\nOu seja, verifique novamente o diálogo entre você e o cliente para associar corretamente os valores nas variáveis de acordo com o diálogo.\n\n⚠️ **Importante:** O comodo/ambiente sempre será Sala, Quarto, Banheiro, Cozinha etc, os comodos de uma casa, ou seja, você é PROIBIDO de associar qualquer outra palavra a \"ambienteoucomodo\"\n\nFormate a saída no seguinte modelo JSON:  \n\njson\n{\n  \"ambienteoucomodo\": \"Banheiro\",\n  \"altura\": \"7 metros de altura\",\n  \"comprimento\": \"5 metros de comprimento\",\n  \"largura\": \"3 metros de largura\",\n  \"material\": \"Piso\" ou \"Parede\"\n}"
+        }
+      },
+      "id": "59e66b29-31e4-4870-98ba-bfea77460312",
+      "name": "organizerAssistant",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -1080,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoMensagem }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n    \"text\": \"{{ $('retornaInfo').first().json.output.replace(/(\\r\\n|\\n|\\r)/gm, '\\\\n').replace(/\"/g, '\\\\\"') }}\",\n    \"delay\": 2100\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -280,
+        1440
+      ],
+      "id": "84ac62f9-fe51-4ee5-8518-6f09986d20a8",
+      "name": "respostaI.A1"
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "joinville_manutencao_endereco",
+          "mode": "list"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $('procura_cliente').first().json.wpp_cliente }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -40,
+        1440
+      ],
+      "id": "69ab2795-f32f-4c47-b356-31b460545feb",
+      "name": "Postgres2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoMensagem }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n    \"text\": \"{{ $('verificaEndereco').first().json.output.replace(/(\\r\\n|\\n|\\r)/gm, '\\\\n').replace(/\"/g, '\\\\\"') }}\",\n    \"delay\": 2100\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1440,
+        1600
+      ],
+      "id": "016450d0-5086-4bff-a1bd-bfcd45b8f249",
+      "name": "respostaI.A2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "banco_dados_clientes",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "wpp_cliente",
+              "condition": "eq",
+              "keyValue": "={{ $('procura_cliente').first().json.wpp_cliente }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "etapa_cliente",
+              "fieldValue": "=finaAgend"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        80,
+        1440
+      ],
+      "id": "4d5f85cc-523e-4309-afb3-592ec35aee21",
+      "name": "finaAgend",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8452b580-264a-463c-b000-a0990e84f1ad",
+              "leftValue": "={{ $('dadosImportantes').first().json.tipoLista }}",
+              "rightValue": "listResponseMessage",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2080,
+        1740
+      ],
+      "id": "3f7c660f-d165-497b-8f97-111fe3c83928",
+      "name": "tipoResposta"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('dadosImportantes').first().json.escolhaDaLista }}",
+                    "rightValue": "=concluir_agendamento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "76fac698-a501-4991-8bf6-e860d2bcdd91"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "concAgend"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5e3b0be5-9ee1-4def-a0e9-c671f50beb53",
+                    "leftValue": "={{ $('dadosImportantes').first().json.escolhaDaLista }}",
+                    "rightValue": "refazer_orcamento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "refazeOrca"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5c7b3625-7130-4422-9d4a-4f84c9af5f5b",
+                    "leftValue": "={{ $('dadosImportantes').first().json.escolhaDaLista }}",
+                    "rightValue": "menu",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "menu"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1820,
+        1720
+      ],
+      "id": "6992614f-fe73-42ba-8401-071f7c70d94e",
+      "name": "verificaBotaoEscolhido2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoLista }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n  \"title\": \"📌 Finalizar Agendamento\",\n  \"description\": \"Escolha uma das opções abaixo para continuar\",\n  \"buttonText\": \"Abrir Opções\",\n  \"footerText\": \"\",\n  \"sections\": [\n    {\n      \"title\": \"Agendamento Opções\",\n      \"rows\": [\n        {\n          \"title\": \"✅ Concluir Agendamento\",\n          \"rowId\": \"concluir_agendamento\"\n        },\n        {\n          \"title\": \"🔄 Refazer Orçamento\",\n          \"rowId\": \"refazer_orcamento\"\n        },\n        {\n          \"title\": \"📋 Menu\",\n          \"rowId\": \"menu\"\n        }\n      ]\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "id": "c9cfcbaf-f9ec-414d-8c1c-039727cea97e",
+      "name": "listaConf",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        1440
+      ],
+      "retryOnFail": true,
+      "executeOnce": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\n\nconst saoPauloDate = now.toLocaleString(\"pt-BR\", { timeZone: \"America/Sao_Paulo\" });\n\nconst oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);\n\nconst saoPauloISO = now.toLocaleString(\"sv-SE\", { timeZone: \"America/Sao_Paulo\", hour12: false }).replace(\" \", \"T\") + \"-03:00\";\nconst saoPauloMaisUmaHoraISO = oneHourLater.toLocaleString(\"sv-SE\", { timeZone: \"America/Sao_Paulo\", hour12: false }).replace(\" \", \"T\") + \"-03:00\";\n\nconst dataDaqui7Dias = new Date();\ndataDaqui7Dias.setDate(dataDaqui7Dias.getDate() + 7);\nconst saoPauloDataDaqui7Dias = dataDaqui7Dias.toLocaleString(\"pt-BR\", { timeZone: \"America/Sao_Paulo\" });\n\nconst data7DiasAntes = new Date();\ndata7DiasAntes.setDate(data7DiasAntes.getDate() - 7);\nconst saoPauloData7DiasAntes = data7DiasAntes.toLocaleString(\"pt-BR\", { timeZone: \"America/Sao_Paulo\" });\n\nreturn [\n  {\n    json: {\n      dataSaoPaulo: saoPauloDate,\n      dataDaqui7Dias: saoPauloDataDaqui7Dias,\n      data7DiasAntes: saoPauloData7DiasAntes,\n      dataSaoPauloISO: saoPauloISO,\n      dataSaoPauloMaisUmaHoraISO: saoPauloMaisUmaHoraISO,\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1440,
+        1740
+      ],
+      "id": "f264a463-7160-4bc2-ac11-34dad9a323e2",
+      "name": "sp3saidas"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "seu-email@exemplo.com",
+          "mode": "list"
+        },
+        "start": "={{ $('sp3saidas').first().json.dataSaoPauloISO }}",
+        "end": "={{ $('sp3saidas').first().json.dataSaoPauloMaisUmaHoraISO }}",
+        "useDefaultReminders": false,
+        "additionalFields": {
+          "attendees": [
+            "={{ $('localizAgend').first().json.email_cliente }}"
+          ],
+          "description": "=Informação Personalizável",
+          "location": "Informação Personalizável",
+          "summary": "={{ $('localizAgend').first().json.nome_cliente }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        -1020,
+        1920
+      ],
+      "id": "6073c0f2-4d1d-4cb6-abce-916837dc758f",
+      "name": "createAgnd"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "dados_orcamento",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "wpp_cliente",
+              "keyValue": "={{ $('procura_cliente').first().json.wpp_cliente }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1320,
+        1740
+      ],
+      "id": "a2f6cada-1929-49e3-8dff-591ceb134fdd",
+      "name": "localizAgend",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "seu-email@exemplo.com",
+          "mode": "list"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        -1020,
+        1700
+      ],
+      "id": "7669b16d-6f38-4382-9005-b7f0cabee602",
+      "name": "createAgnd1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoMensagem }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n    \"text\": \"{{ $('classificadorGeral').first().json.output.replace(/(\\r\\n|\\n|\\r)/gm, '\\\\n').replace(/\"/g, '\\\\\"') }}\",\n    \"delay\": 2100\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -740,
+        420
+      ],
+      "id": "915a0d28-50d2-4915-9d9f-bc85f499eede",
+      "name": "respostaI.A6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoLista }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n  \"title\": \"📌 Realizar Orçamento\",\n  \"description\": \"Escolha uma das opções abaixo\",\n  \"buttonText\": \"Abrir Opções\",\n  \"footerText\": \"\",\n  \"sections\": [\n    {\n      \"title\": \"Menu Principal\",\n      \"rows\": [\n        {\n          \"title\": \"💰 Realizar Orçamento\",\n          \"rowId\": \"orcamentopartedois\"\n        },\n        {\n          \"title\": \"📋 Menu\",\n          \"rowId\": \"menu\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "a0bdd119-8547-41d4-96d9-41e3dde3344c",
+      "name": "listaOrcam2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -740,
+        -60
+      ],
+      "retryOnFail": true,
+      "executeOnce": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -580,
+        560
+      ],
+      "id": "6d69292a-70ca-4fd5-8c2a-2d725c27ade3",
+      "name": "OpenAI Chat Model3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Mensagem do Cliente: \"{{ $('dadosImportantes').first().json.mensagemCliente }}\".",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é um assistente da empresa Teciart. Sua função é responder/interagir com os clientes de forma simpática e gentil, sempre procurando responder/retirar todas as dúvidas dos clientes. \n\nVocê está proibido de informar \"Você\" ao responder o cliente, ou seja, apenas seja direto na resposta.\n\nUse as listas informadas a seguir para verificar a melhor forma de responder os clientes. Lista de dúvidas gerais: \"{{ $('listaDuvidasGerais').first().json.lista_aqui }}\". Lista de Valores: \"{{ $('listaValores').first().json.lista_aqui }}\". Lista de Vídeos: \"{{ $('listaMidias').first().json.resultado }}\". Ou seja, as respostas para as dúvidas dos clientes estarão dentro das duas listas.\n\nLembre-se: você é OBRIGADO a sempre informar a URL do vídeo/mídia, pois você SEMPRE deve buscar a URL dos vídeos dentro da sua lista de vídeos/mídias.\n\nExemplo de diálogos a serem obrigatoriamente usados como base:\n\n- Diálogo 1-\n\"Cliente: Eu estava no site da Teciart e eu vi um Vídeo do Banheiro, poderia me enviar ele?\"\n\nVOCÊ É OBRIGADO A INFORMAR OS PEDAÇOS DESSA FORMA:\n\n\"pedaco1\": \"Ah, que ótimo! Vou te contar um pouco sobre as diferenças de materiais para banheiro, ta? Então, banheiros que possuem azulejo\"\n\n\"pedaco2\": \"nós recomendamos o adesivo de vinil, é um material muito resistente, ele é à prova d'água, o que o torna resistente a molhar e limpar, pois o material não vai estragar\"\n\n\"pedaco3\": \"https://teciart.com.br/wp-content/uploads/2025/03/BANHEIRO.mp4\".\n\n### ATENÇÃO ###\nComo no exemplo acima a conversa envolvia uma dessas mídias na sua lista de mídia: Vídeo do Banheiro, Corredor, Cozinha, Infantil, Piso ou Quarto, separe a sua resposta em dois pedaços OBRIGATORIAMENTE como no exemplo acima.\n\n- Diálogo 2-\n\"Cliente: Me envia o video do corredor\n\nVOCÊ É OBRIGADO A INFORMAR OS PEDAÇOS DESSA FORMA:\n\n\"pedaco1\": \"Ah, que ótimo que você está interessado no corredor, para corredor nós temos esses vídeos\"\n\n\"pedaco2\": \"https://teciart.com.br/wp-content/uploads/2025/03/CORREDOR.mp4\"\n\n### ATENÇÃO ###\nComo no exemplo acima a conversa envolvia uma dessas mídias na sua lista de mídia: Vídeo do Banheiro, Corredor, Cozinha, Infantil, Piso ou Quarto, separe a sua resposta em dois pedaços OBRIGATORIAMENTE como no exemplo acima.\n\n- Diálogo 3 -\n\"Cliente: Estou interessado em comprar material para o quarto\"\n\nVOCÊ É OBRIGADO A INFORMAR OS PEDAÇOS DESSA FORMA:\n\n\"pedaco1\": \"Pois vou te ajudar agora com um dos nossos resultados para o quarto!\"\n\n\"pedaco2\": \"url do video do quarto\"\n\n### ATENÇÃO ###\nComo no exemplo acima a conversa envolvia uma dessas mídias na sua lista de mídia: Vídeo do Banheiro, Corredor, Cozinha, Infantil, Piso ou Quarto, separe a sua resposta em dois pedaços OBRIGATORIAMENTE como no exemplo acima.\n\n#### ATENÇÃO A ESSAS SITUAÇÕES ESPECÍFICAS ####\nSituação 1:\nQuando o cliente citar algum produto que viu no site ou pedir alguma mídia, por exemplo alguma mídia que tem na sua lista de Vídeos, por exemplo o vídeo do Banheiro, Corredor, Cozinha, Infantil, Piso ou Quarto, responda obrigatoriamente com pedaços de mensagem, sempre separando a url dos videos em pedaços únicos."
+        }
+      },
+      "id": "33c3bac6-96af-4fd7-95b8-f4e10c758c7b",
+      "name": "organizerMedias",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -560,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        240,
+        380
+      ],
+      "id": "28f0a9b8-25a9-4666-a7d6-e0b74c4a6b62",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        280,
+        600
+      ],
+      "id": "48e91d09-368f-4113-8c7a-6eb4952b6b77"
+    },
+    {
+      "parameters": {
+        "jsCode": "const entradaBruta = $input.item.json.output;\n\n// Remove marcações ```json ou ```\nlet jsonStringLimpo = entradaBruta.replace(/```json|```/g, '').trim();\n\n// Corrige: adiciona vírgulas onde precisa\njsonStringLimpo = jsonStringLimpo.replace(/\"\\n\\n\"/g, '\",\\n\"');\n\n// Corrige: remove ponto final que aparece depois da última aspas fechando um valor\njsonStringLimpo = jsonStringLimpo.replace(/\"\\.(\\s*?)$/gm, '\"$1');\n\n// Agora transforma em objeto JSON\nconst dados = JSON.parse(`{${jsonStringLimpo}}`);\n\n// Cria lista de saídas\nconst saidas = [];\n\nfor (const chave of Object.keys(dados).sort()) {\n  saidas.push({\n    json: {\n      mensagem: dados[chave]\n    }\n  });\n}\n\nreturn saidas;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        420
+      ],
+      "id": "e12491a4-b1f9-43af-85e5-30d55591c226",
+      "name": "saidaDinamica"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eb6efd43-3986-4e78-8673-97693b66c642",
+              "leftValue": "={{ $('Replace Me').first().json.mensagem }}",
+              "rightValue": "https",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        600
+      ],
+      "id": "2dc56202-8f87-4d5b-857d-708c6788b8d4",
+      "name": "ifMedia"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoMensagem }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n    \"text\": \"{{ $('Replace Me').first().json.mensagem }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        760,
+        580
+      ],
+      "id": "018f9d3f-ae29-40c6-9e10-e895351556f9",
+      "name": "sendText",
+      "retryOnFail": false,
+      "maxTries": 5,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoMidia }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\", \n    \"mediatype\": \"video\",  \n    \"mimetype\": \"video/mp4\",\n    \"caption\": \"Dá uma olhada no resultado!\",\n    \"media\": \"{{ $('format').first().json.url }}\",  \n    \"fileName\": \"video.mp4\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        760,
+        820
+      ],
+      "id": "7e22d04d-2c13-462f-88f7-72627e2c691c",
+      "name": "sendVideo"
+    },
+    {
+      "parameters": {
+        "jsCode": "const mensagem = $input.item.json.mensagem;\n\nconst urlRegex = /(https?:\\/\\/[^\\s]+)/;\n\nconst match = mensagem.match(urlRegex);\n\nreturn [\n  {\n    json: {\n      url: match ? match[0] : null\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        820
+      ],
+      "id": "78709c85-96e7-421a-8127-2cbc5418aa59",
+      "name": "format"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('procura_cliente').first().json.wpp_cliente }}",
+        "tableName": "joinville_manutencao_texto"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -440,
+        280
+      ],
+      "id": "42445818-d085-4f89-9ae0-3961d3683344",
+      "name": "duvidasTexto"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Resposta do Assistente: \"{{ $('assistenteTexto').first().json.output }}\"",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Você é uma assistente da empresa Teciart, mas você é PROIBIDA de se apresentar ou dar alguma saudação. Não responda nada que não tenha relação com a Resposta do Assistente que está aqui dentro: \"{{ $('assistenteTexto').first().json.output }}\".\n\nUse a resposta do assistente e divida ela em 3 partes que OBRIGATORIAMENTE façam sentido uma com a outra, o e responda em json OBRIGATORIAMENTE usando o exemplo abaixo:\n\nResposta do Assistente recebido:\n\"Se o azulejo não tiver rejunte, a aplicação do tecido ou do adesivo continua sendo possível. É importante garantir que a superfície esteja limpa e lisa antes da aplicação para evitar qualquer descolamento. Preparar bem a parede sempre ajuda a ter um resultado melhor. \n\nSe precisar de mais informações, é só avisar! Além disso, que tal agendar uma visita para um orçamento e sugestões personalizadas?\"\n\nFormate a saída no seguinte modelo JSON:  \n\n```json\n{\n  \"pedaco1\": \"Se o azulejo não tiver rejunte, a aplicação do tecido ou do adesivo continua sendo possível\",\n  \"pedaco2\": \"É importante garantir que a superfície esteja limpa e lisa antes da aplicação para evitar qualquer descolamento. Preparar bem a parede sempre ajuda a ter um resultado melhor\",\n  \"pedaco3\": \"Se precisar de mais informações, é só avisar! Além disso, que tal agendar uma visita para um orçamento e sugestões personalizadas?\"\n}\n\nUse OBRIGATORIAMENTE o exemplo acima como base para a sua resposta."
+        }
+      },
+      "id": "cadb25af-0001-4ec5-aac6-bbff997feca8",
+      "name": "assistenteTexto1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -280,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -280,
+        300
+      ],
+      "id": "60c227a8-1b2e-42f9-aa00-1aab86004915",
+      "name": "OpenAI Chat Model4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const jsonString = $json.output;\n\nconst pureJsonString = jsonString.replace(/```json/g, '').replace(/```/g, '').trim();\n\nconst jsonInput = JSON.parse(pureJsonString);\n\nconst pedaco1 = jsonInput.pedaco1;\nconst pedaco2 = jsonInput.pedaco2;\nconst pedaco3 = jsonInput.pedaco3;\n\nlet respostasArray;\nif (pedaco3 !== undefined && pedaco3 !== null) {\n  respostasArray = [pedaco1, pedaco2, pedaco3];\n} else {\n  respostasArray = [pedaco1, pedaco2];\n}\n\nreturn respostasArray.map(resposta => ({\n  json: { resposta: resposta }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        120
+      ],
+      "id": "737d1daa-dc8d-4f45-b391-ebe09c72623f",
+      "name": "separandoResposta"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        500,
+        120
+      ],
+      "id": "884eb9c7-1622-40b1-92e7-86e7e6d60b4f",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me1",
+      "typeVersion": 1,
+      "position": [
+        560,
+        360
+      ],
+      "id": "9bc8c92e-5af0-4f9d-8734-acb6eb42398a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoMensagem }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n    \"text\": \"{{ $('Replace Me1').first().json.resposta }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        760,
+        360
+      ],
+      "id": "bf2b7756-0c1d-433a-aa08-2222ceb00b93",
+      "name": "enviarTexto2",
+      "retryOnFail": false,
+      "maxTries": 5,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('dadosImportantes').first().json.eventoMensagem }}{{ $('dadosImportantes').first().json.instanciaDinamica }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "={{ $('dadosImportantes').first().json.apikeyParametro }}",
+              "value": "={{ $('dadosImportantes').first().json.apikeyGlobal }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('procura_cliente').first().json.wpp_cliente }}\",\n    \"text\": \"Ótimo! Esse é o número da nossa equipe ta bem?\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1440,
+        1300
+      ],
+      "id": "ad09f9e2-6b7d-4112-8e88-1b760efc12eb",
+      "name": "numeroEquipe"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "deMim",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "deMim": {
+      "main": [
+        [
+          {
+            "node": "procura_cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verifica_existencia": {
+      "main": [
+        [
+          {
+            "node": "dadosImportantes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "lista_estados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "procura_cliente": {
+      "main": [
+        [
+          {
+            "node": "verifica_existencia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cria_cliente": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Segundos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "lista_estados": {
+      "main": [
+        [
+          {
+            "node": "cria_cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Segundos": {
+      "main": [
+        [
+          {
+            "node": "procura_cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dadosImportantes": {
+      "main": [
+        [
+          {
+            "node": "manutencao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "manutencao": {
+      "main": [
+        [
+          {
+            "node": "perguntasFrequentesDois",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "verifica_etapa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verifica_etapa": {
+      "main": [
+        [],
+        [],
+        [],
+        [],
+        [
+          {
+            "node": "tipoResposta1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "tipoResposta1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tipoResposta1": {
+      "main": [
+        [
+          {
+            "node": "verificaBotaoEscolhido",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "naoEntendi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verificaBotaoEscolhido": {
+      "main": [
+        [],
+        [
+          {
+            "node": "listaDuvidasGerais",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "assOrcamento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "tipoResposta2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "verificaEndereco",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "tipoResposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "listaValores": {
+      "main": [
+        [
+          {
+            "node": "buscaMidias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "listaDuvidasGerais": {
+      "main": [
+        [
+          {
+            "node": "listaValores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "buscaMidias": {
+      "main": [
+        [
+          {
+            "node": "listaMidias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "listaMidias": {
+      "main": [
+        [
+          {
+            "node": "classificadorGeral",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "classificadorGeral",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verificaNDO": {
+      "main": [
+        [
+          {
+            "node": "listaOrcam2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "assistenteTexto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "respostaI.A6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "classificadorGeral": {
+      "main": [
+        [
+          {
+            "node": "verificaNDO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "assistenteTexto",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "assistenteTexto": {
+      "main": [
+        [
+          {
+            "node": "assistenteTexto1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "assOrcamento": {
+      "main": [
+        [
+          {
+            "node": "caminhosDiferentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "assOrcamento",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "caminhosDiferentes": {
+      "main": [
+        [
+          {
+            "node": "waitClient",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "respostaI.A",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "orcamento": {
+      "ai_memory": [
+        [
+          {
+            "node": "assOrcamento",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "classificador": {
+      "ai_memory": [
+        [
+          {
+            "node": "classificadorGeral",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select": {
+      "main": [
+        [
+          {
+            "node": "unindoDialogo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "unindoDialogo": {
+      "main": [
+        [
+          {
+            "node": "organizerAssistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "organizerAssistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "saidaSeparada": {
+      "main": [
+        [
+          {
+            "node": "logicaRegiao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualizarInfo": {
+      "main": [
+        [
+          {
+            "node": "unindoValor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "waitClient": {
+      "main": [
+        [
+          {
+            "node": "Select",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model11": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "assistenteCalculo",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "assistenteCalculo": {
+      "main": [
+        [
+          {
+            "node": "assistenteCalculo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "unindoValor": {
+      "main": [
+        [
+          {
+            "node": "assistenteCalculo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "logicaRegiao": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model12": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "assistenteCalculo1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "assistenteCalculo1": {
+      "main": [
+        [
+          {
+            "node": "respostaI.A4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "respostaI.A4": {
+      "main": [
+        [
+          {
+            "node": "listaOrca",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "listaOrca": {
+      "main": [
+        [
+          {
+            "node": "assistenteCalculo2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model15": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "assistenteCalculo2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "assistenteCalculo2": {
+      "main": [
+        [
+          {
+            "node": "saidaSeparada3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "saidaSeparada3": {
+      "main": [
+        [
+          {
+            "node": "atualizarInfo7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualizarInfo7": {
+      "main": [
+        [
+          {
+            "node": "Postgres1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres1": {
+      "main": [
+        [
+          {
+            "node": "confOrca",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tipoResposta2": {
+      "main": [
+        [
+          {
+            "node": "verificaBotaoEscolhido1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pedirEnd": {
+      "main": [
+        [
+          {
+            "node": "atualizarInfo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verificaBotaoEscolhido1": {
+      "main": [
+        [
+          {
+            "node": "pedirEnd",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [],
+        [
+          {
+            "node": "numeroEquipe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "verificaEndereco",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "endereco": {
+      "ai_memory": [
+        [
+          {
+            "node": "verificaEndereco",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verificaEndereco": {
+      "main": [
+        [
+          {
+            "node": "contemExatamente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "contemExatamente": {
+      "main": [
+        [
+          {
+            "node": "Select1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "respostaI.A2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select1": {
+      "main": [
+        [
+          {
+            "node": "unindoDialogo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "unindoDialogo1": {
+      "main": [
+        [
+          {
+            "node": "organizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model10": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "organizer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "organizer": {
+      "main": [
+        [
+          {
+            "node": "saidaSeparada1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "saidaSeparada1": {
+      "main": [
+        [
+          {
+            "node": "atualizarInfo8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualizarInfo8": {
+      "main": [
+        [
+          {
+            "node": "unindoValor1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model13": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "retornaInfo",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retornaInfo": {
+      "main": [
+        [
+          {
+            "node": "respostaI.A1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "unindoValor1": {
+      "main": [
+        [
+          {
+            "node": "retornaInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "organizerAssistant": {
+      "main": [
+        [
+          {
+            "node": "saidaSeparada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "respostaI.A1": {
+      "main": [
+        [
+          {
+            "node": "listaConf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres2": {
+      "main": [
+        [
+          {
+            "node": "finaAgend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tipoResposta": {
+      "main": [
+        [
+          {
+            "node": "verificaBotaoEscolhido2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verificaBotaoEscolhido2": {
+      "main": [
+        [
+          {
+            "node": "sp3saidas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "listaConf": {
+      "main": [
+        [
+          {
+            "node": "Postgres2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sp3saidas": {
+      "main": [
+        [
+          {
+            "node": "localizAgend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "localizAgend": {
+      "main": [
+        [
+          {
+            "node": "createAgnd",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "createAgnd1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "respostaI.A6": {
+      "main": [
+        [
+          {
+            "node": "organizerMedias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "listaOrcam2": {
+      "main": [
+        [
+          {
+            "node": "iniciarOrca",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "organizerMedias",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "organizerMedias": {
+      "main": [
+        [
+          {
+            "node": "saidaDinamica",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "ifMedia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "saidaDinamica": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ifMedia": {
+      "main": [
+        [
+          {
+            "node": "sendText",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sendText": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sendVideo": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "format": {
+      "main": [
+        [
+          {
+            "node": "sendVideo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "duvidasTexto": {
+      "ai_memory": [
+        [
+          {
+            "node": "assistenteTexto",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "assistenteTexto1": {
+      "main": [
+        [
+          {
+            "node": "separandoResposta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "assistenteTexto1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "separandoResposta": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Replace Me1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me1": {
+      "main": [
+        [
+          {
+            "node": "enviarTexto2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "enviarTexto2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "numeroEquipe": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "485bf03aeb34423dce2ae59ecfcfe015025cd6633484c05d652cd71e51132630"
+  }
+}
